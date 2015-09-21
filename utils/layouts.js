@@ -11,24 +11,13 @@ Array.prototype.seperator = function(obj) {
     }
 }
 
-Array.prototype.pushUnique = function(obj) {
-    var temp = null;
-    if (this.length > 0) {
-        temp = this.pop();
-        this.push(temp);
-    }
-    if (temp !== obj)
-        this.push(obj);
-}
-
 var filter = function(key) {
-    if (key.match(/,/)) return '';
+    if (key.match(/,/)) return key;
 
     return key
-        .replace(/\'/g, '')
-        .replace(/\"/g, '')
-        .replace(/_+$/, '+')
-        .replace(/_-$/, '-')
+        .replace(/^\'(.+)\'$/g, '$1')
+        .replace(/_\+$/, '+')
+        .replace(/_\-$/, '-')
         .replace(/^NUM_*/, '')
         .replace(/^NUMBER_/, '')
         .replace(/^KEY_/, '')
@@ -55,11 +44,11 @@ var filter = function(key) {
         .replace(/^MAIN_*VOL[UME]*_*\+$/, 'VOL+')
         .replace(/^MAIN_*VOL[UME]*_*\-$/, 'VOL-')
         .replace(/^MAIN-VOL[UME]*_*UP$/, 'VOL+')
-        .replace(/^MAIN-VO[UME]*L_*DOWN$/, 'VOL-')
+        .replace(/^MAIN-VOL[UME]*_*D[OWN]+$/, 'VOL-')
         .replace(/^MASTER_*VOL[UME]*_*[\+\>]+$/, 'VOL+')
         .replace(/^MASTER_*VOL[UME]*_*[\-\<]+$/, 'VOL-')
         .replace(/^MASTER_*VOL[UME]*_*UP$/, 'VOL+')
-        .replace(/^MASTER_*VOL[UME]*_*DOWN$/, 'VOL-')
+        .replace(/^MASTER_*VOL[UME]*_*D[OWN]+$/, 'VOL-')
         .replace(/^\+_*VOL[UME]*$/, 'VOL+')
         .replace(/^\-_*VOL[UME]*$/, 'VOL-')
 
@@ -67,10 +56,10 @@ var filter = function(key) {
         .replace(/^CH[ANEL]*[-_]*D[OWN]+$/, 'CH-')
         .replace(/^CH[ANEL]*[-_]*NEXT$/, 'CH+')
         .replace(/^CH[ANEL]*[-_]*PREV$/, 'CH-')
-        .replace(/^CH[ANEL]*[-_]*[\+\>P]+$/, 'CH+')
-        .replace(/^CH[ANEL]*[-_]*[\-\<M]+$/, 'CH-')
-        .replace(/^\+_*CH$/, 'VOL+')
-        .replace(/^\-_*CH$/, 'VOL-')
+        .replace(/^CH[ANEL]*[-_]*[\+\>]+$/, 'CH+')
+        .replace(/^CH[ANEL]*[-_]*[\-\<]+$/, 'CH-')
+        .replace(/^\+_*CH$/, 'CH+')
+        .replace(/^\-_*CH$/, 'CH-')
 
         .replace(/^CHAP[TER]*[-_]*FWD$/, 'CHAP+')
         .replace(/^CHAP[TER]*[-_]*REV$/, 'CHAP-')
@@ -90,7 +79,7 @@ var rowAny = function(k, keys) {
     var row = [];
     keys.forEach(function(key) {
         if (k.hasOwnProperty(key)) {
-            row.push(key);
+            row.push(k[key]);
             delete(k[key]);
         }
     });
@@ -118,49 +107,53 @@ if (operation === 'keycount') {
 }
 
 var patterns = [
-    { replace: true, pattern: /_*\+$/, icon: 'add'},
-    { replace: true, pattern: /_*\-$/, icon: 'remove'},
-    { replace: true, pattern: /^\+_*/, icon: 'add'},
-    { replace: true, pattern: /^\-_*$/, icon: 'remove'},
-    { replace: true, pattern: /[-_]*UP$/, icon: 'keyboard_arrow_up'},
-    { replace: true, pattern: /[-_]*D[OWN]+$/, icon: 'keyboard_arrow_down'},
-    { replace: true, pattern: /[-_]*LEFT$/, icon: 'keyboard_arrow_left'},
-    { replace: true, pattern: /[-_]*RIGHT$/, icon: 'keyboard_arrow_right'},
-    { replace: true, pattern: /_*PLAY$/, icon: 'play_arrow' },
-    { replace: true, pattern: /_*PAUSE$/, icon: 'pause' },
-    { replace: true, pattern: /_*STOP$/, icon: 'stop' },
-    { replace: true, pattern: /\/$/ },
+	{ pattern: /[0-9]+[\+\-]$/ },
+	{ pattern: /[\+\-][0-9]+$/ },
+	{ pattern: /BACK[-_]*UP/ },
+	{ pattern: /SET[-_]*UP/ },
+	{ pattern: /^A[-_]*B$/, name: 'A-B' },
+	{ pattern: /^.*\+\/\-$/ },
 
-    { pattern: 'POWER', icon: 'settings_power' },
-    { pattern: 'MUTE', icon: 'volume_off' },
-    { pattern: 'MENU', icon: 'menu' },
-    { pattern: 'REWIND', icon: 'fast_rewind', name: 'REW' },
-    { pattern: 'FORWARD', icon: 'fast_forward', name: 'FWD' },
-    { pattern: 'PREVIOUS', icon: 'keyboard_arrow_left', name: 'PREV' },
-    { pattern: 'NEXT', icon: 'keyboard_arrow_right' },
-    { pattern: 'BACK', icon: 'arrow_back' },
-    { pattern: 'OK', icon: 'check' },
-    { pattern: 'ENTER', icon: 'check' },
-    { pattern: 'SELECT', icon: 'check' },
-    { pattern: 'EXIT', icon: 'close' },
-    { pattern: 'CANCEL', icon: 'cancel' },
+	{ replace: true, pattern: /[-_]*\+$/, icon: 'add' },
+	{ replace: true, pattern: /[-_]*\-$/, icon: 'remove' },
+	{ replace: true, pattern: /^\+[-_]*/, icon: 'add' },
+	{ replace: true, pattern: /^\-[-_]*/, icon: 'remove' },
+	{ replace: true, pattern: /[-_]+UP$/, icon: 'keyboard_arrow_up' },
+	{ replace: true, pattern: /[-_]+D[OWN]+$/, icon: 'keyboard_arrow_down' },
+	{ replace: true, pattern: /[-_]+LEFT$/, icon: 'keyboard_arrow_left' },
+	{ replace: true, pattern: /[-_]+RIGHT$/, icon: 'keyboard_arrow_right' },
 
-    { replace: true, pattern: 'RED', color: 'red' },
-    { replace: true, pattern: 'GREEN', color: 'green' },
-    { replace: true, pattern: 'YELLOW', color: 'yellow' },
-    { replace: true, pattern: 'BLUE', color: 'blue' },
+    { pattern: /^POWER$/, icon: 'settings_power' },
+	{ pattern: /^MUTE$/, icon: 'volume_off' },
+	{ pattern: /^MENU$/, icon: 'menu' },
+	{ pattern: /^PLAY$/, icon: 'play_arrow' },
+	{ pattern: /^PAUSE$/, icon: 'pause' },
+	{ pattern: /^STOP$/, icon: 'stop' },
+	{ pattern: /^REWIND$/, icon: 'fast_rewind', name: 'REW' },
+	{ pattern: /^FORWARD$/, icon: 'fast_forward', name: 'FWD' },
+	{ pattern: /^PREVIOUS$/, icon: 'keyboard_arrow_left', name: 'PREV' },
+	{ pattern: /^NEXT$/, icon: 'keyboard_arrow_right' },
+	{ pattern: /^BACK$/, icon: 'arrow_back' },
+	{ pattern: /^OK$/, icon: 'check' },
+	{ pattern: /^ENTER$/, icon: 'check' },
+	{ pattern: /^SELECT$/, icon: 'check' },
+	{ pattern: /^EXIT$/, icon: 'close' },
+	{ pattern: /^CANCEL$/, icon: 'cancel' },
+
+    { replace: true, pattern: /^RED$/, bcolor: 'red' },
+	{ replace: true, pattern: /^GREEN$/, bcolor: 'green' },
+	{ replace: true, pattern: /^YELLOW$/, bcolor: 'yellow' },
+	{ replace: true, pattern: /^BLUE$/, bcolor: 'blue' },
 ];
 
 if (operation === 'layout') {
+    // var names = {};
     remotes.forEach(function(remote) {
         var keys = {};
 
         remote.keys.forEach(function(key) {
-            // Normalize key id
+            // Normalize key name
             var k = filter(key.key.toUpperCase());
-            if (k !== '')
-                keys[k] = 1;
-            key.key = k;
             // Generate key caption, icon, color
             key.name = k;
             for (var i = 0; i < patterns.length; i++) {
@@ -170,10 +163,17 @@ if (operation === 'layout') {
                     if (p.bcolor !== undefined) key.bcolor = p.bcolor;
                     if (p.replace === true) key.name = key.name.replace(p.pattern, '');
                     if (p.name !== undefined) key.name = p.name;
-                    // delete(key.spec); delete(key.code); delete(key.tcode); console.log(key);
                     break;
                 }
             }
+            // Reverse LUT for generating layout
+            keys[key.name] = key.key;
+
+            // if (!names[key.name])
+            //     names[key.name] = [];
+            // if (names[key.name].indexOf(key.key.toUpperCase()) < 0)
+            //     names[key.name].push(key.key.toUpperCase());
+            // delete(key.spec); delete(key.code); delete(key.tcode);
         });
 
         var totKeys = 0;
@@ -217,7 +217,7 @@ if (operation === 'layout') {
         if (row.length > 0)
             buttons.push(row);
 
-        buttons.pushUnique('BREAK');
+        buttons.seperator('BREAK');
 
         row = rowAny(keys, ['1', '2', '3']);
         if (row.length > 0)
@@ -243,7 +243,7 @@ if (operation === 'layout') {
         if (row.length > 0)
             buttons.push(row);
 
-        buttons.pushUnique('BREAK');
+        buttons.seperator('BREAK');
 
         row = rowAny(keys, ['RECORD', 'PLAY', 'PLAYPAUSE', 'PAUSE', 'STOP']);
         if (row.length > 0)
@@ -273,11 +273,11 @@ if (operation === 'layout') {
         }
 
         if (remKeys > 0) {
-            buttons.pushUnique('BREAK');
+            buttons.seperator('BREAK');
             row = [];
             for (var key in keys) {
                 if (keys.hasOwnProperty(key)) {
-                    row.push(key);
+                    row.push(keys[key]);
                     if (row.length >= 3) {
                         buttons.push(row);
                         row = [];
@@ -298,20 +298,21 @@ if (operation === 'layout') {
         var layout = [];
         buttons.forEach(function(row) {
             if (row === 'BREAK')
-                layout.pushUnique('pagebreak');
+                layout.seperator('pagebreak');
             else {
                 row.forEach(function(b) {
                     layout.push(b);
                 });
-                layout.pushUnique('rowbreak');
+                layout.seperator('rowbreak');
             }
         });
-        layout.pushUnique('pagebreak');
+        layout.seperator('pagebreak');
         // console.log(layout);
 
         remote.confidence += score;
         remote.layout = layout;
         console.log(JSON.stringify(remote));
     });
+    // console.log(JSON.stringify(names));
 }
 
