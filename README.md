@@ -1,6 +1,6 @@
 # zmote: Database Models
 
-This repo is used as a submodule from [zmote-server][1] and [zmote-firmare][2].  Please see [zmote-server][1] for details.
+This repo is used as a submodule from [zmote-server][1] and [zmote-firmware][2].  Please see [zmote-server][1] for details.
 
 
 [1]: https://github.com/zmoteio/zmote-server
