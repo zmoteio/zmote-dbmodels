@@ -43,3 +43,4 @@ WidgetSchema.options.toJSON = {
         }
 };
 mongoose.model('Widget', WidgetSchema);
+mongoose.model('DemoWidget', WidgetSchema);
