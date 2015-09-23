@@ -18,25 +18,29 @@ var filter = function(key) {
         .replace(/^\'(.+)\'$/g, '$1')
         .replace(/_\+$/, '+')
         .replace(/_\-$/, '-')
-        .replace(/^NUM_*/, '')
-        .replace(/^NUMBER_/, '')
-        .replace(/^KEY_/, '')
-        .replace(/^BTN_/, '')
+        .replace(/^NUM_+/, '')
+        .replace(/^NUMBER_+/, '')
+        .replace(/^KEY_+/, '')
+        .replace(/^BTN_+/, '')
 
-        .replace(/^STANDBY[\/_-]*ON$/, 'POWER')
-        .replace(/STAND_*BY$/, 'POWER')
-        .replace(/^SYSTEM_STANDBY$/, 'POWER')
+        .replace(/^STAND[\-_]*BY$/, 'POWER')
+        .replace(/^STAND[\-_]*BY[\/\-_]*ON$/, 'POWER')
+        .replace(/^SYSTEM[\-_]*STAND[\-_]*BY$/, 'POWER')
+        .replace(/^SYSTEM[\-_]*POWER$/, 'POWER')
+        .replace(/^MASTER[\-_]*POWER$/, 'POWER')
+        .replace(/^POWER[\-_]*ON[\/\-_]*OFF$/, 'POWER')
+        .replace(/^([^\/\-_]+)[\/\-_]*POWER$/, '$1_POWER')
 
-        .replace(/^VOL[UME]*[-_]*UP$/, 'VOL+')
-        .replace(/^VOL[UME]*[-_]*D[OWN]+$/, 'VOL-')
+        .replace(/^VOL[UME]*[\-_]*UP$/, 'VOL+')
+        .replace(/^VOL[UME]*[\-_]*D[OWN]+$/, 'VOL-')
         .replace(/^VOL[UME]*_*[\+\>]+$/, 'VOL+')
         .replace(/^VOL[UME]*_*[\-\<]+$/, 'VOL-')
-        .replace(/^VOL[UME]*[-_]*INC$/, 'VOL+')
-        .replace(/^VOL[UME]*[-_]*DEC$/, 'VOL-')
-        .replace(/^VOL[UME]*[-_]*PLUS$/, 'VOL+')
-        .replace(/^VOL[UME]*[-_]*MINUS$/, 'VOL-')
-        .replace(/^VOL[UME]*[-_]*HIGHER$/, 'VOL+')
-        .replace(/^VOL[UME]*[-_]*LOWER$/, 'VOL-')
+        .replace(/^VOL[UME]*[\-_]*INC$/, 'VOL+')
+        .replace(/^VOL[UME]*[\-_]*DEC$/, 'VOL-')
+        .replace(/^VOL[UME]*[\-_]*PLUS$/, 'VOL+')
+        .replace(/^VOL[UME]*[\-_]*MINUS$/, 'VOL-')
+        .replace(/^VOL[UME]*[\-_]*HIGHER$/, 'VOL+')
+        .replace(/^VOL[UME]*[\-_]*LOWER$/, 'VOL-')
         .replace(/^GENERALVOL[UME]*_*\+$/, 'VOL+')
         .replace(/^GENERALVOL[UME]*_*\-$/, 'VOL-')
         .replace(/^M\.*VOL[UME]*_*\+$/, 'VOL+')
@@ -52,27 +56,58 @@ var filter = function(key) {
         .replace(/^\+_*VOL[UME]*$/, 'VOL+')
         .replace(/^\-_*VOL[UME]*$/, 'VOL-')
 
-        .replace(/^CH[ANEL]*[-_]*UP$/, 'CH+')
-        .replace(/^CH[ANEL]*[-_]*D[OWN]+$/, 'CH-')
-        .replace(/^CH[ANEL]*[-_]*NEXT$/, 'CH+')
-        .replace(/^CH[ANEL]*[-_]*PREV$/, 'CH-')
-        .replace(/^CH[ANEL]*[-_]*[\+\>]+$/, 'CH+')
-        .replace(/^CH[ANEL]*[-_]*[\-\<]+$/, 'CH-')
+        .replace(/^CH[ANEL]*[\-_]*UP$/, 'CH+')
+        .replace(/^CH[ANEL]*[\-_]*D[OWN]+$/, 'CH-')
+        .replace(/^CH[ANEL]*[\-_]*NEXT$/, 'CH+')
+        .replace(/^CH[ANEL]*[\-_]*PREV$/, 'CH-')
+        .replace(/^CH[ANEL]*[\-_]*[\+\>]+$/, 'CH+')
+        .replace(/^CH[ANEL]*[\-_]*[\-\<]+$/, 'CH-')
         .replace(/^\+_*CH$/, 'CH+')
         .replace(/^\-_*CH$/, 'CH-')
 
-        .replace(/^CHAP[TER]*[-_]*FWD$/, 'CHAP+')
-        .replace(/^CHAP[TER]*[-_]*REV$/, 'CHAP-')
-        .replace(/^CHAP[TER]*[-_]*FORWARD$/, 'CHAP+')
-        .replace(/^CHAP[TER]*[-_]*BACK$/, 'CHAP-')
-        .replace(/^CHAP[TER]*[-_]*NEXT$/, 'CHAP+')
-        .replace(/^CHAP[TER]*[-_]*PREV$/, 'CHAP-')
-        .replace(/^CHAP[TER]*[-_]*[\+\>P]+$/, 'CHAP+')
-        .replace(/^CHAP[TER]*[-_]*[\-\<M]+$/, 'CHAP-')
+        .replace(/^CHAP[TER]*[\-_]*FWD$/, 'CHAP+')
+        .replace(/^CHAP[TER]*[\-_]*REV$/, 'CHAP-')
+        .replace(/^CHAP[TER]*[\-_]*FORWARD$/, 'CHAP+')
+        .replace(/^CHAP[TER]*[\-_]*BACK$/, 'CHAP-')
+        .replace(/^CHAP[TER]*[\-_]*NEXT$/, 'CHAP+')
+        .replace(/^CHAP[TER]*[\-_]*PREV$/, 'CHAP-')
+        .replace(/^CHAP[TER]*[\-_]*[\+\>P]+$/, 'CHAP+')
+        .replace(/^CHAP[TER]*[\-_]*[\-\<M]+$/, 'CHAP-')
+
+        .replace(/^AMP[\.\-_]+/, 'AMP_')
+        .replace(/^AUDIO[\.\-_]+/, 'AUDIO_')
+        .replace(/^AUTO[\.\-_]+/, 'AUTO_')
+        .replace(/^AUX[\.\-_]+/, 'AUX_')
+        .replace(/^AV[\.\-_]+/, 'AV_')
+        .replace(/^CD[\.\-_]+/, 'CD_')
+        .replace(/^DECK[\.\-_]+/, 'DECK_')
+        .replace(/^DISC[\.\-_]+/, 'DISC_')
+        .replace(/^DISPLAY[\.\-_]+/, 'DISPLAY_')
+        .replace(/^DSP[\.\-_]+/, 'DSP_')
+        .replace(/^DVD[\.\-_]+/, 'DVD_')
+        .replace(/^EQ[\.\-_]+/, 'EQ_')
+        .replace(/^INDEX[\.\-_]+/, 'INDEX_')
+        .replace(/^INPUT[\.\-_]+/, 'INPUT_')
+        .replace(/^MD[\.\-_]+/, 'MD_')
+        .replace(/^MULTI[\.\-_]+/, 'MULTI_')
+        .replace(/^PAUSE[\.\-_]+/, 'PAUSE_')
+        .replace(/^PIP[\.\-_]+/, 'PIP_')
+        .replace(/^SAT[\.\-_]+/, 'SAT_')
+        .replace(/^SEARCH[\.\-_]+/, 'SEARCH_')
+        .replace(/^SELECT[\.\-_]+/, 'SELECT_')
+        .replace(/^SKIP[\.\-_]+/, 'SKIP_')
+        .replace(/^TAPE1[\.\-_]+/, 'TAPE1_')
+        .replace(/^TAPE2[\.\-_]+/, 'TAPE2_')
+        .replace(/^TAPE[\.\-_]+/, 'TAPE_')
+        .replace(/^TUNER[\.\-_]+/, 'TUNER_')
+        .replace(/^TV[\.\-_]+/, 'TV_')
+        .replace(/^VCR[\.\-_]+/, 'VCR_')
+        .replace(/^VTR[\.\-_]+/, 'VTR_')
 
         .replace(/^PROGRAM$/, 'PROG')
         .replace(/^VOLUMEMUTE$/, 'MUTE')
         .replace(/^FASTFORWARD$/, 'FORWARD')
+        .replace(/^A[\.\/\-_]*B[_RPT]*$/, 'A-B')
 }
 
 var rowAny = function(k, keys) {
@@ -111,7 +146,6 @@ var patterns = [
 	{ pattern: /[\+\-][0-9]+$/ },
 	{ pattern: /BACK[-_]*UP/ },
 	{ pattern: /SET[-_]*UP/ },
-	{ pattern: /^A[-_]*B$/, name: 'A-B' },
 	{ pattern: /^.*\+\/\-$/ },
 
 	{ replace: true, pattern: /[-_]*\+$/, icon: 'add' },
@@ -140,10 +174,10 @@ var patterns = [
 	{ pattern: /^EXIT$/, icon: 'close' },
 	{ pattern: /^CANCEL$/, icon: 'cancel' },
 
-    { replace: true, pattern: /^RED$/, bcolor: 'red' },
-	{ replace: true, pattern: /^GREEN$/, bcolor: 'green' },
-	{ replace: true, pattern: /^YELLOW$/, bcolor: 'yellow' },
-	{ replace: true, pattern: /^BLUE$/, bcolor: 'blue' },
+    { replace: true, pattern: /^RED$/, color: 'red' },
+	{ replace: true, pattern: /^GREEN$/, color: 'green' },
+	{ replace: true, pattern: /^YELLOW$/, color: 'yellow' },
+	{ replace: true, pattern: /^BLUE$/, color: 'blue' },
 ];
 
 if (operation === 'layout') {
@@ -160,7 +194,7 @@ if (operation === 'layout') {
                 var p = patterns[i];
                 if (k.match(p.pattern)) {
                     if (p.icon !== undefined) key.icon = p.icon;
-                    if (p.bcolor !== undefined) key.bcolor = p.bcolor;
+                    if (p.color !== undefined) key.color = p.color;
                     if (p.replace === true) key.name = key.name.replace(p.pattern, '');
                     if (p.name !== undefined) key.name = p.name;
                     break;
@@ -274,12 +308,18 @@ if (operation === 'layout') {
 
         if (remKeys > 0) {
             buttons.seperator('BREAK');
+            var rowCount = 0;
             row = [];
             for (var key in keys) {
                 if (keys.hasOwnProperty(key)) {
                     row.push(keys[key]);
                     if (row.length >= 3) {
                         buttons.push(row);
+                        rowCount++;
+                        if (rowCount >= 5) {
+                            buttons.seperator('BREAK');
+                            rowCount = 0;
+                        }
                         row = [];
                     }
                 }
