@@ -1,5 +1,4 @@
-var operation = 'layout';
-
+var fs = require('fs');
 var remotes = require('./converted.json');
 
 Array.prototype.seperator = function(obj) {
@@ -9,6 +8,17 @@ Array.prototype.seperator = function(obj) {
         if (temp !== obj)
             this.push(obj);
     }
+}
+
+var rowAny = function(k, keys) {
+    var row = [];
+    keys.forEach(function(key) {
+        if (k.hasOwnProperty(key)) {
+            row.push(k[key]);
+            delete(k[key]);
+        }
+    });
+    return row;
 }
 
 var filter = function(key) {
@@ -110,37 +120,6 @@ var filter = function(key) {
         .replace(/^A[\.\/\-_]*B[_RPT]*$/, 'A-B')
 }
 
-var rowAny = function(k, keys) {
-    var row = [];
-    keys.forEach(function(key) {
-        if (k.hasOwnProperty(key)) {
-            row.push(k[key]);
-            delete(k[key]);
-        }
-    });
-    return row;
-}
-
-if (operation === 'keycount') {
-    var keys = {};
-
-    remotes.forEach(function(remote) {
-        remote.keys.forEach(function(key) {
-            k = filter(key.key.toUpperCase());
-            if (keys[k])
-                keys[k]++;
-            else
-                keys[k] = 1;
-        });
-    });
-
-    for (var k in keys) {
-        if (!keys.hasOwnProperty(k))
-            continue;
-        console.log(keys[k], k);
-    }
-}
-
 var patterns = [
 	{ pattern: /[0-9]+[\+\-]$/ },
 	{ pattern: /[\+\-][0-9]+$/ },
@@ -180,179 +159,194 @@ var patterns = [
 	{ replace: true, pattern: /^BLUE$/, color: 'blue' },
 ];
 
-if (operation === 'layout') {
-    // var names = {};
-    remotes.forEach(function(remote) {
-        var keys = {};
+var names = {};
+var protocols = {};
+var remotes_out = [];
 
-        remote.keys.forEach(function(key) {
-            // Normalize key name
-            var k = filter(key.key.toUpperCase());
-            // Generate key caption, icon, color
-            key.name = k;
-            for (var i = 0; i < patterns.length; i++) {
-                var p = patterns[i];
-                if (k.match(p.pattern)) {
-                    if (p.icon !== undefined) key.icon = p.icon;
-                    if (p.color !== undefined) key.color = p.color;
-                    if (p.replace === true) key.name = key.name.replace(p.pattern, '');
-                    if (p.name !== undefined) key.name = p.name;
-                    break;
-                }
-            }
-            // Reverse LUT for generating layout
-            keys[key.name] = key.key;
+remotes.forEach(function(remote) {
+    var keys = {};
 
-            // if (!names[key.name])
-            //     names[key.name] = [];
-            // if (names[key.name].indexOf(key.key.toUpperCase()) < 0)
-            //     names[key.name].push(key.key.toUpperCase());
-            // delete(key.spec); delete(key.code); delete(key.tcode);
-        });
-
-        var totKeys = 0;
-        for (var key in keys) {
-            if (keys.hasOwnProperty(key)) {
-                totKeys++;
+    remote.keys.forEach(function(key) {
+        // Normalize key name
+        var k = filter(key.key.toUpperCase());
+        // Generate key caption, icon, color
+        key.name = k;
+        for (var i = 0; i < patterns.length; i++) {
+            var p = patterns[i];
+            if (k.match(p.pattern)) {
+                if (p.icon !== undefined) key.icon = p.icon;
+                if (p.color !== undefined) key.color = p.color;
+                if (p.replace === true) key.name = key.name.replace(p.pattern, '');
+                if (p.name !== undefined) key.name = p.name;
+                break;
             }
         }
-        var buttons = [];
-        var row;
+        // Reverse LUT for generating layout
+        keys[key.name] = key.key;
 
-        row = rowAny(keys, ['POWER']);
-        if (row.length > 0)
-            buttons.push(row);
+        // For debugging name normalization
+        if (!names[key.name])
+            names[key.name] = [];
+        if (names[key.name].indexOf(key.key.toUpperCase()) < 0)
+            names[key.name].push(key.key.toUpperCase());
 
-        row = rowAny(keys, ['VOL-', 'MUTE', 'VOL+']);
-        if (row.length > 0)
-            buttons.push(row);
-
-        row = rowAny(keys, ['CH-', 'CH+']);
-        if (row.length > 0)
-            buttons.push(row);
-
-        row = rowAny(keys, ['UP']);
-        if (row.length > 0)
-            buttons.push(row);
-
-        row = rowAny(keys, ['LEFT', 'OK', 'ENTER', 'SELECT', 'RIGHT']);
-        if (row.length > 0)
-            buttons.push(row);
-
-        row = rowAny(keys, ['DOWN']);
-        if (row.length > 0)
-            buttons.push(row);
-
-        row = rowAny(keys, ['BACK', 'CANCEL', 'MENU', 'SETUP', 'EXIT']);
-        if (row.length > 0)
-            buttons.push(row);
-
-        row = rowAny(keys, ['EPG', 'INFO', 'DISPLAY', 'CLEAR']);
-        if (row.length > 0)
-            buttons.push(row);
-
-        buttons.seperator('BREAK');
-
-        row = rowAny(keys, ['1', '2', '3']);
-        if (row.length > 0)
-            buttons.push(row);
-
-        row = rowAny(keys, ['4', '5', '6']);
-        if (row.length > 0)
-            buttons.push(row);
-
-        row = rowAny(keys, ['7', '8', '9']);
-        if (row.length > 0)
-            buttons.push(row);
-
-        row = rowAny(keys, ['0']);
-        if (row.length > 0)
-            buttons.push(row);
-
-        row = rowAny(keys, ['FAVORITES', 'INPUT', 'LAST']);
-        if (row.length > 0)
-            buttons.push(row);
-
-        row = rowAny(keys, ['RED', 'GREEN', 'YELLOW', 'BLUE']);
-        if (row.length > 0)
-            buttons.push(row);
-
-        buttons.seperator('BREAK');
-
-        row = rowAny(keys, ['RECORD', 'PLAY', 'PLAYPAUSE', 'PAUSE', 'STOP']);
-        if (row.length > 0)
-            buttons.push(row);
-
-        row = rowAny(keys, ['REWIND', 'FASTFORWARD', 'PREVIOUS', 'NEXT']);
-        if (row.length > 0)
-            buttons.push(row);
-
-        row = rowAny(keys, ['A-B', 'AB', 'RANDOM', 'SHUFFLE', 'PROGRAM']);
-        if (row.length > 0)
-            buttons.push(row);
-
-        row = rowAny(keys, ['AUDIO', 'SUBTITLE', 'AV']);
-        if (row.length > 0)
-            buttons.push(row);
-
-        row = rowAny(keys, ['TV/VIDEO', 'TV', 'DVD', 'VIDEO', 'AUX', 'TAPE']);
-        if (row.length > 0)
-            buttons.push(row);
-
-        var remKeys = 0;
-        for (var key in keys) {
-            if (keys.hasOwnProperty(key)) {
-                remKeys++;
-            }
+        // For look-up using protocol -> device -> subdevice
+        if (key.spec && key.spec.protocol != 'none') {
+            if (!protocols.hasOwnProperty(key.spec.protocol))
+                protocols[key.spec.protocol] = {};
+            if (!protocols[key.spec.protocol].hasOwnProperty(key.spec.device))
+                protocols[key.spec.protocol][key.spec.device] = {};
+            if (!protocols[key.spec.protocol][key.spec.device].hasOwnProperty(key.spec.subdevice))
+                protocols[key.spec.protocol][key.spec.device][key.spec.subdevice] = [];
+            if (protocols[key.spec.protocol][key.spec.device][key.spec.subdevice].indexOf(remote.brand + ' ' + remote.model) < 0)
+                protocols[key.spec.protocol][key.spec.device][key.spec.subdevice].push(remote.brand + ' ' + remote.model);
         }
-
-        if (remKeys > 0) {
-            buttons.seperator('BREAK');
-            var rowCount = 0;
-            row = [];
-            for (var key in keys) {
-                if (keys.hasOwnProperty(key)) {
-                    row.push(keys[key]);
-                    if (row.length >= 3) {
-                        buttons.push(row);
-                        rowCount++;
-                        if (rowCount >= 5) {
-                            buttons.seperator('BREAK');
-                            rowCount = 0;
-                        }
-                        row = [];
-                    }
-                }
-            }
-            if (row.length > 0) {
-                buttons.push(row);
-                row = [];
-            }
-        }
-
-        // console.log(buttons);
-
-        var score = Math.floor((totKeys - remKeys) * 16 / totKeys);
-        // console.log(remKeys, totKeys, score);
-
-        var layout = [];
-        buttons.forEach(function(row) {
-            if (row === 'BREAK')
-                layout.seperator('pagebreak');
-            else {
-                row.forEach(function(b) {
-                    layout.push(b);
-                });
-                layout.seperator('rowbreak');
-            }
-        });
-        layout.seperator('pagebreak');
-        // console.log(layout);
-
-        remote.confidence += score;
-        remote.layout = layout;
-        console.log(JSON.stringify(remote));
     });
-    // console.log(JSON.stringify(names));
-}
 
+    var totKeys = 0;
+    for (var key in keys) {
+        if (keys.hasOwnProperty(key)) {
+            totKeys++;
+        }
+    }
+    var buttons = [];
+    var row;
+
+    row = rowAny(keys, ['POWER']);
+    if (row.length > 0)
+        buttons.push(row);
+
+    row = rowAny(keys, ['VOL-', 'MUTE', 'VOL+']);
+    if (row.length > 0)
+        buttons.push(row);
+
+    row = rowAny(keys, ['CH-', 'CH+']);
+    if (row.length > 0)
+        buttons.push(row);
+
+    row = rowAny(keys, ['UP']);
+    if (row.length > 0)
+        buttons.push(row);
+
+    row = rowAny(keys, ['LEFT', 'OK', 'ENTER', 'SELECT', 'RIGHT']);
+    if (row.length > 0)
+        buttons.push(row);
+
+    row = rowAny(keys, ['DOWN']);
+    if (row.length > 0)
+        buttons.push(row);
+
+    row = rowAny(keys, ['BACK', 'CANCEL', 'MENU', 'SETUP', 'EXIT']);
+    if (row.length > 0)
+        buttons.push(row);
+
+    row = rowAny(keys, ['EPG', 'INFO', 'DISPLAY', 'CLEAR']);
+    if (row.length > 0)
+        buttons.push(row);
+
+    buttons.seperator('BREAK');
+
+    row = rowAny(keys, ['1', '2', '3']);
+    if (row.length > 0)
+        buttons.push(row);
+
+    row = rowAny(keys, ['4', '5', '6']);
+    if (row.length > 0)
+        buttons.push(row);
+
+    row = rowAny(keys, ['7', '8', '9']);
+    if (row.length > 0)
+        buttons.push(row);
+
+    row = rowAny(keys, ['0']);
+    if (row.length > 0)
+        buttons.push(row);
+
+    row = rowAny(keys, ['FAVORITES', 'INPUT', 'LAST']);
+    if (row.length > 0)
+        buttons.push(row);
+
+    row = rowAny(keys, ['RED', 'GREEN', 'YELLOW', 'BLUE']);
+    if (row.length > 0)
+        buttons.push(row);
+
+    buttons.seperator('BREAK');
+
+    row = rowAny(keys, ['RECORD', 'PLAY', 'PLAYPAUSE', 'PAUSE', 'STOP']);
+    if (row.length > 0)
+        buttons.push(row);
+
+    row = rowAny(keys, ['REWIND', 'FASTFORWARD', 'PREVIOUS', 'NEXT']);
+    if (row.length > 0)
+        buttons.push(row);
+
+    row = rowAny(keys, ['A-B', 'AB', 'RANDOM', 'SHUFFLE', 'PROGRAM']);
+    if (row.length > 0)
+        buttons.push(row);
+
+    row = rowAny(keys, ['AUDIO', 'SUBTITLE', 'AV']);
+    if (row.length > 0)
+        buttons.push(row);
+
+    row = rowAny(keys, ['TV/VIDEO', 'TV', 'DVD', 'VIDEO', 'AUX', 'TAPE']);
+    if (row.length > 0)
+        buttons.push(row);
+
+    var remKeys = 0;
+    for (var key in keys) {
+        if (keys.hasOwnProperty(key)) {
+            remKeys++;
+        }
+    }
+
+    if (remKeys > 0) {
+        buttons.seperator('BREAK');
+        var rowCount = 0;
+        row = [];
+        for (var key in keys) {
+            if (keys.hasOwnProperty(key)) {
+                row.push(keys[key]);
+                if (row.length >= 3) {
+                    buttons.push(row);
+                    rowCount++;
+                    if (rowCount >= 5) {
+                        buttons.seperator('BREAK');
+                        rowCount = 0;
+                    }
+                    row = [];
+                }
+            }
+        }
+        if (row.length > 0) {
+            buttons.push(row);
+            row = [];
+        }
+    }
+
+    // console.log(buttons);
+
+    var score = Math.floor((totKeys - remKeys) * 16 / totKeys);
+    // console.log(remKeys, totKeys, score);
+
+    var layout = [];
+    buttons.forEach(function(row) {
+        if (row === 'BREAK')
+            layout.seperator('pagebreak');
+        else {
+            row.forEach(function(b) {
+                layout.push(b);
+            });
+            layout.seperator('rowbreak');
+        }
+    });
+    layout.seperator('pagebreak');
+    // console.log(layout);
+
+    remote.confidence += score;
+    remote.layout = layout;
+    remotes_out.push(remote);
+});
+
+fs.writeFileSync('names.json', JSON.stringify(names));
+fs.writeFileSync('protocols.json', JSON.stringify(protocols));
+fs.writeFileSync('remotes.json', JSON.stringify(remotes_out));
