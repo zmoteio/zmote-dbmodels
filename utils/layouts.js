@@ -1,5 +1,5 @@
 var fs = require('fs');
-var remotes = require('./converted.json');
+var remotes = require('./converted.json')
 
 Array.prototype.seperator = function(obj) {
     if (this.length > 0) {
@@ -169,8 +169,10 @@ remotes.forEach(function(remote) {
     remote.keys.forEach(function(key) {
         // Normalize key name
         var k = filter(key.key.toUpperCase());
-        // Generate key caption, icon, color
         key.name = k;
+        // Reverse LUT for generating layout
+        keys[key.name] = key.key;
+        // Generate key caption, icon, color
         for (var i = 0; i < patterns.length; i++) {
             var p = patterns[i];
             if (k.match(p.pattern)) {
@@ -181,8 +183,6 @@ remotes.forEach(function(remote) {
                 break;
             }
         }
-        // Reverse LUT for generating layout
-        keys[key.name] = key.key;
 
         // For debugging name normalization
         if (!names[key.name])
@@ -203,6 +203,7 @@ remotes.forEach(function(remote) {
         }
     });
 
+    // console.log(keys);
     var totKeys = 0;
     for (var key in keys) {
         if (keys.hasOwnProperty(key)) {
@@ -272,7 +273,7 @@ remotes.forEach(function(remote) {
 
     buttons.seperator('BREAK');
 
-    row = rowAny(keys, ['RECORD', 'PLAY', 'PLAYPAUSE', 'PAUSE', 'STOP']);
+    row = rowAny(keys, ['PLAY', 'PLAYPAUSE', 'PAUSE', 'STOP', 'RECORD']);
     if (row.length > 0)
         buttons.push(row);
 
@@ -322,7 +323,6 @@ remotes.forEach(function(remote) {
             row = [];
         }
     }
-
     // console.log(buttons);
 
     var score = Math.floor((totKeys - remKeys) * 16 / totKeys);
