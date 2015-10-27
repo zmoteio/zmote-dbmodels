@@ -21,10 +21,15 @@ var WidgetSchema = new Schema({
 
 	// Connection details
 	connected: Boolean,
-	ota: Boolean,
 	lastEvent: Date,
 	localIP: String,
 	extIP: String,
+
+	// OTA related
+	ota: Boolean,  // OTA is in progress
+	ota_version: String, 
+	ota_msg: String, // Store to resend for retries
+	ota_retries: Number, // retry count goes to 10 before we stop trying
 
 	clients: [{ // List of clients authorized to access this widget
 		type: Schema.ObjectId,
