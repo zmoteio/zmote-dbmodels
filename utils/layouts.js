@@ -153,10 +153,10 @@ var patterns = [
 	{ pattern: /^EXIT$/, icon: 'close' },
 	{ pattern: /^CANCEL$/, icon: 'cancel' },
 
-    { replace: true, pattern: /^RED$/, color: 'red' },
-	{ replace: true, pattern: /^GREEN$/, color: 'green' },
-	{ replace: true, pattern: /^YELLOW$/, color: 'yellow' },
-	{ replace: true, pattern: /^BLUE$/, color: 'blue' },
+    { pattern: /^RED$/, color: 'red' },
+	{ pattern: /^GREEN$/, color: 'green' },
+	{ pattern: /^YELLOW$/, color: 'yellow' },
+	{ pattern: /^BLUE$/, color: 'blue' },
 ];
 
 var names = {};
@@ -350,3 +350,5 @@ remotes.forEach(function(remote) {
 fs.writeFileSync('names.json', JSON.stringify(names));
 fs.writeFileSync('protocols.json', JSON.stringify(protocols));
 fs.writeFileSync('remotes.json', JSON.stringify(remotes_out));
+
+console.log(remotes.length + ' remotes');
