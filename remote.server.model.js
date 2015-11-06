@@ -44,12 +44,14 @@ var RemoteSchema = new Schema({
             misc: String
         },
         code: {
-            period: Number, // 1/2 peirod in Q16 based on modulation frequency
+            frequency: Number, // modulation frequency
+            period: Number, // 1/2 peirod in Q16 based on modulation frequency (depricated)
             n: Number,
             repeat: [Number],
             seq: [Number]
         },
         tcode: { // Same code with toggle bit set
+            frequency: Number,
             period: Number,
             n: Number,
             repeat: [Number],

@@ -679,7 +679,7 @@ var key = function(k, p, d, s, f, m, pronto) {
             for (var i = 4; i < val.length; i++)
                 seq.push(val[i]);
             record['code'] = {
-                period: Math.floor(32768000 / freqK + 0.5),
+                frequency: freqK * 1000,
                 n: sng + rpt,
                 repeat: [0, sng, sng + rpt],
                 seq: seq
